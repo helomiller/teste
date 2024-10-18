@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #game-container {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Python Guessing Game</h1>
+    <div id="game-container"></div>
+    
+    <!-- Pyodide library to run Python code in the browser -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+
+    <script>
+        async function main() {
+            let pyodide = await loadPyodide();
+            
+            // Python code for the guessing game
+            const pythonCode = `
+import random
+
+num = ''
+user = ''
+nome1 = ''
+nomec = ''
+userc = ''
+nome = []
+dif = []
+acertos = []
+rodada = []
+vartxt = ''
+varnum = ''
+
+def trata_errol():
+    while True:
+        nome1 = input("Digite o seu nome ou sair para encerrar: ")
+        if nome1.lower() == "sair":
+            return "SAIR"
+        elif any(char.isdigit() for char in nome1):
+           print("Nomes não devem conter números, tente novamente.")
+        else:
+            return nome1
+
+def trataerron():
+    while True:
+        user = input("Você acha que é qual número? ")
+        try:
+            user = int(user)
+            return user
+        except:
+            print("Tente novamente, dado inválido.")
+
+def dificuldade():
+    while True:
+        x = input("Escolha entre fácil, médio e difícil. Digite F para fácil, M para médio e D para difícil: ")
+        x = x.upper()
+        if x == "F":
+            return "Nível fácil, 10"
+        elif x == "M":
+            return "Nível médio, 5"
+        elif x == "D":
+            return "Nível difícil, 3"
+        else:
+            print("Dificuldade inválida.")
+
+def main():
+    while True:
+        print("Jogo da adivinhação")
+        nome1 = trata_errol()
+        if nome1 == "SAIR":
+            break
+        else:
+            nome.append(nome1)
+            num = random.randint(1, 100)
+            y = dificuldade()
+            z = y.split(", ")
+            vartxt = z[0]
+            dif.append(vartxt)
+            varnum = z[1]
+            varnum = int(varnum)
+            acertos.append("Jogo perdido")
+            for i in range(varnum):
+                print("Rodada", i + 1, "de", varnum)
+                user = trataerron()
+                if user == num:
+                    print("Parabéns, você acertou! O número sorteado é:", num)
+                    acertos.pop()
+                    acertos.append("Jogo ganho")
+                    break
+                else:
+                    if num < user:
+                        print("O número é menor que o digitado!")
+                    elif num > user:
+                        print("O número é maior que o digitado!")
+            print("O número era:", num)
+            print("\\n")
+            rodada.append("jogo")
+            
+    nr = len(rodada)
+    for i in range(nr):
+        print("\\n")
+        print(nome[i])
+        print(dif[i])
+        print(acertos[i])
+
+main()
+            `;
+            
+            // Redirect print statements to a container in the HTML
+            pyodide.runPython(`
+import sys
+from js import document
+
+class StdoutRedirector:
+    def __init__(self):
+        self.buffer = ""
+
+    def write(self, text):
+        self.buffer += text
+        document.getElementById("game-container").innerHTML = self.buffer
+
+    def flush(self):
+        pass
+
+sys.stdout = StdoutRedirector()
+            `);
+            
+            // Run the Python game
+            pyodide.runPython(pythonCode);
+        }
+
+        main();
+    </script>
+</body>
+</html>
